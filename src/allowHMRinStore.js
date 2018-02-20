@@ -14,9 +14,20 @@ export default function allowHMR(_module, store) {
       });
     }
 
+    const getDefaultStore = function () {
+      var defaultStore = _module.exports.default;
+
+      if (!defaultStore) {
+        var defaultStoreName = Object.keys(_module.exports)
+          .filter(name => name.endsWith("Store"))[0]
+        defaultStore = _module.exports[defaultStoreName];
+      }
+      return defaultStore;
+    };
+
 
     _module.hot.dispose((data) => {
-      data.prevStore = _module.exports.default;
+      data.prevStore = getDefaultStore();
       window[oldestStores] = window[oldestStores] || {};
       if (window[oldestStores][_module.id]) {
         data.prevStore.unsubscribe();
