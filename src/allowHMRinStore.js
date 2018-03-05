@@ -7,7 +7,7 @@ export default function allowHMR(_module, store) {
     if (_module.hot.data) {
       let prevStore = _module.hot.data.prevStore;
       store.setState(prevStore.state);
-      prevStore.storeDidUpdate = null;
+      if (prevStore) prevStore.storeDidUpdate = null;
 
       store.unsubscribe = store.listen((state) => {
         window[oldestStores][_module.id].setState(state);
@@ -15,6 +15,7 @@ export default function allowHMR(_module, store) {
     }
 
     const getDefaultStore = function () {
+      if (!_module.exports) return null;
       var defaultStore = _module.exports.default;
 
       if (!defaultStore) {
@@ -27,7 +28,10 @@ export default function allowHMR(_module, store) {
 
 
     _module.hot.dispose((data) => {
-      data.prevStore = getDefaultStore();
+      const defStore = getDefaultStore();
+      if (!defStore) return;
+
+      data.prevStore = defStore;
       window[oldestStores] = window[oldestStores] || {};
       if (window[oldestStores][_module.id]) {
         data.prevStore.unsubscribe();
