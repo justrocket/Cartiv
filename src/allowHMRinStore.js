@@ -6,12 +6,15 @@ export default function allowHMR(_module, store) {
 
     if (_module.hot.data) {
       let prevStore = _module.hot.data.prevStore;
-      store.setState(prevStore.state);
-      if (prevStore) prevStore.storeDidUpdate = null;
-
-      store.unsubscribe = store.listen((state) => {
-        window[oldestStores][_module.id].setState(state);
-      });
+      if (prevStore) {
+        store.setState(prevStore.state);
+        prevStore.storeDidUpdate = null;
+      }
+      if (window[oldestStores] && window[oldestStores][_modules.id]) {
+        store.unsubscribe = store.listen((state) => {
+          window[oldestStores][_module.id].setState(state);
+        });
+      }
     }
 
     const getDefaultStore = function () {
